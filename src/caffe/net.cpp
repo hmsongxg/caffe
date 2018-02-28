@@ -21,6 +21,24 @@
 
 namespace caffe {
 
+/*
+net联合定义一个函数和它的梯度通过合成和自动差分。每个layer的输出的合成计算一个给定任务的函数，
+每个layer的backward的合成计算学习任务的loss的梯度。caffe model是端到端的机器学习引擎。
+net是layers的集合，layers之间使用有向无环图（Directed acyclic graph, DAG）连接。
+net使用纯文本文档定义layers和他们指尖的连接。
+
+模型初始化使用Net::Init().这个初始化主要做两件事：创建blobs和layers搭建整个有向无环图（DAG），调用layers的Setup()函数。
+它也做一些统计工作，例如校验整个网络架构的正确性。注意：网络的构建是设备无关的。构建之后，网络是运行在CPU或GPU上是通过
+一个单独的定义实现的Caffe::mode()，设置Caffe::set_mode()。
+
+模型是在纯文本protocol buffer模式.prototxt中定义的，学习好的模型被序列化为binary protocol buffer，存储在 .caffemodel文件中。
+caffe使用Google Protocol Buffer出于以下几个优点：
+序列化时最小化binary string的size，有效序列化，文本格式兼容binary version，在多种语言中都有接口实现，例如C++和Python。
+这些优点使得在caffe建模灵活可拓展。
+
+
+*/
+
 template <typename Dtype>
 Net<Dtype>::Net(const NetParameter& param, const Net* root_net)
     : root_net_(root_net) {

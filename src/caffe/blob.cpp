@@ -6,6 +6,24 @@
 #include "caffe/syncedmem.hpp"
 #include "caffe/util/math_functions.hpp"
 
+/*
+Blobs：
+blob实际上是caffe中处理和传输的数据的包装器，并同时兼具CPU和GPU之间的数据同步的能力。
+数学上看，一个blob实际上是一个类似C中的N维数组。(这个代码中N为4,int型)
+
+caffe使用blob存储和通信数据。blob提供一个统一的内存接口保存数据。
+caffe中常用的数据有image batches, model parameters and derivatives for optimization。
+
+由于我们通常对于blobs的数值和差分感兴趣，所以一个blob存储两块内存：data and diff。前者是我们传输的正常数据，后者是网络计算的梯度。
+
+实际数据可以被存储在CPU或GPU上，我们有两种方式获得它们：const方式（不改变数值），mutable方式（改变数值）。两种方式如下定义：
+const Dtype* cpu_data() const;
+Dtype* mutable_cpu_data();
+在GPU上和对差分的操作是类似的。
+
+这样设计的原因在于：blob使用SyncedMem类同步CPU和GPU的数据，为了隐藏同步的细节和最小化数据传输使用两种调用方式。
+经验方法是如果不想改变数值就一直使用const方式调用，不在自己定义的object上存储指针。
+*/
 namespace caffe {
 
 template <typename Dtype>
